@@ -85,7 +85,7 @@ EOT
         $path = array_pop($path);
 
         if (!file_exists($path)) {
-            $helper = $this->getHelper('question');
+            $helper = $this->getQuestionHelper();
             $question = $this->getCreateSeederDirectoryQuestion();
 
             if ($helper->ask($input, $output, $question)) {

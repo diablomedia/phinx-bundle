@@ -1,6 +1,7 @@
 <?php
 
 declare(strict_types=1);
+
 /**
  * Released under the MIT License.
  *
@@ -28,9 +29,10 @@ declare(strict_types=1);
 namespace DiabloMedia\PhinxBundle\Command;
 
 use Phinx\Db\Adapter\AdapterFactory;
+use Symfony\Bundle\FrameworkBundle\Console\Application;
+use Symfony\Component\Console\Helper\QuestionHelper;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * common code for commands.
@@ -41,8 +43,12 @@ trait CommonTrait
 {
     protected function initialize(InputInterface $input, OutputInterface $output): void
     {
-        /** @var ContainerInterface $container */
-        $container = $this->getApplication()->getKernel()->getContainer();
+        $application = $this->getApplication();
+        if (!$application instanceof Application) {
+            throw new \LogicException('Phinx commands must run within a Symfony FrameworkBundle application.');
+        }
+
+        $container = $application->getKernel()->getContainer();
         $this->setConfig($container->get('phinx.config'));
         $this->loadManager($input, $output);
 
@@ -50,5 +56,15 @@ trait CommonTrait
         foreach ($adapters as $name => $class) {
             AdapterFactory::instance()->registerAdapter($name, $class);
         }
+    }
+
+    protected function getQuestionHelper(): QuestionHelper
+    {
+        $helper = $this->getHelper('question');
+        if (!$helper instanceof QuestionHelper) {
+            throw new \LogicException('The Symfony question helper is not available.');
+        }
+
+        return $helper;
     }
 }

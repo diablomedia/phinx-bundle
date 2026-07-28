@@ -1,6 +1,7 @@
 <?php
 
 declare(strict_types=1);
+
 /**
  * Released under the MIT License.
  *
@@ -98,7 +99,7 @@ class CreateCommand extends AbstractCommand
         $path = array_pop($path);
 
         if (!file_exists($path)) {
-            $helper = $this->getHelper('question');
+            $helper = $this->getQuestionHelper();
             $question = $this->getCreateMigrationDirectoryQuestion();
 
             if ($helper->ask($input, $output, $question)) {
@@ -133,6 +134,7 @@ class CreateCommand extends AbstractCommand
         // Get the alternative template and static class options from the config, but only allow one of them.
         $defaultAltTemplate = $this->getConfig()->getTemplateFile();
         $defaultCreationClassName = $this->getConfig()->getTemplateClass();
+        $defaultStyle = $this->getConfig()->getTemplateStyle();
         if ($defaultAltTemplate && $defaultCreationClassName) {
             throw new \InvalidArgumentException('Cannot define template:class and template:file at the same time');
         }
@@ -186,7 +188,7 @@ class CreateCommand extends AbstractCommand
             $contents = $creationClass->getMigrationTemplate();
         } else {
             // Load the alternative template if it is defined.
-            $contents = file_get_contents($altTemplate ?: $this->getMigrationTemplateFilename());
+            $contents = file_get_contents($altTemplate ?: $this->getMigrationTemplateFilename($defaultStyle));
         }
 
         // inject the class names appropriate to this migration

@@ -89,8 +89,6 @@ EOT
     /**
      * Rollback the migration.
      *
-     * @return void
-     *
      * @throws \Exception
      */
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -104,7 +102,7 @@ EOT
 
         if (!$noInteraction) {
             $options = $this->getManager()->getEnvironment('default')->getOptions();
-            $helper = $this->getHelper('question');
+            $helper = $this->getQuestionHelper();
 
             $message = '<info>Careful, would rollback the database <comment>%s</comment>. '
                 .'Do you want to continue? (yes/no)</info> [<comment>no</comment>]: ';
@@ -119,7 +117,8 @@ EOT
         // rollback the specified environment
         $start = microtime(true);
         if (null !== $date) {
-            $this->getManager()->rollbackToDateTime('default', new \DateTime($date), $force);
+            $targetDate = new \DateTime($date);
+            $this->getManager()->rollback('default', $targetDate->format('YmdHis'), $force, false);
         } else {
             $this->getManager()->rollback('default', $version, $force);
         }

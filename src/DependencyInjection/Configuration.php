@@ -27,6 +27,7 @@ declare(strict_types=1);
 
 namespace DiabloMedia\PhinxBundle\DependencyInjection;
 
+use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\Config\Definition\ConfigurationInterface;
 
@@ -41,38 +42,40 @@ class Configuration implements ConfigurationInterface
     {
         $treeBuilder = new TreeBuilder('diablomedia_phinx');
 
-        $treeBuilder->getRootNode()
-            ->children()
-                ->scalarNode('migration_base_class')->info('Replace default migration class')->end()
-                ->arrayNode('adapters')
-                    ->info('Replace or add migration adapters')
-                    ->useAttributeAsKey('name')
-                    ->prototype('scalar')->end()
-                ->end()
-                ->arrayNode('paths')
-                    ->addDefaultsIfNotSet()
-                    ->children()
-                        ->variableNode('migrations')->defaultValue('%kernel.project_dir%/src/Resources/db/migrations')->end()
-                        ->variableNode('seeds')->defaultValue('%kernel.project_dir%/src/Resources/db/seeds')->end()
-                    ->end()
-                ->end()
-                ->arrayNode('environment')
-                    ->addDefaultsIfNotSet()
-                    ->children()
-                        ->scalarNode('table_prefix')->end()
-                        ->scalarNode('table_suffix')->end()
-                        ->scalarNode('migration_table')->end()
-                        ->arrayNode('connection')
-                            ->children()
-                                ->scalarNode('dsn')
-                                    ->isRequired()
-                                ->end()
-                            ->end()
-                        ->end()
-                    ->end()
-                ->end()
-            ->end()
-        ;
+        $rootNode = $treeBuilder->getRootNode();
+        if (!$rootNode instanceof ArrayNodeDefinition) {
+            throw new \LogicException('The bundle configuration root must be an array node.');
+        }
+
+        $children = $rootNode->children();
+        $children->scalarNode('migration_base_class')
+            ->info('Replace default migration class');
+
+        $adapters = $children->arrayNode('adapters');
+        $adapters
+            ->info('Replace or add migration adapters')
+            ->useAttributeAsKey('name')
+            ->scalarPrototype();
+
+        $paths = $children->arrayNode('paths');
+        $paths->addDefaultsIfNotSet();
+        $pathChildren = $paths->children();
+        $pathChildren->variableNode('migrations')
+            ->defaultValue('%kernel.project_dir%/src/Resources/db/migrations');
+        $pathChildren->variableNode('seeds')
+            ->defaultValue('%kernel.project_dir%/src/Resources/db/seeds');
+
+        $environment = $children->arrayNode('environment');
+        $environment->addDefaultsIfNotSet();
+        $environmentChildren = $environment->children();
+        $environmentChildren->scalarNode('table_prefix');
+        $environmentChildren->scalarNode('table_suffix');
+        $environmentChildren->scalarNode('migration_table');
+
+        $connection = $environmentChildren->arrayNode('connection');
+        $connection->children()
+            ->scalarNode('dsn')
+            ->isRequired();
 
         return $treeBuilder;
     }
