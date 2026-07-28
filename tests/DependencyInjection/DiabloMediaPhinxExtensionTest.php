@@ -85,6 +85,28 @@ final class DiabloMediaPhinxExtensionTest extends TestCase
         self::assertTrue($this->container->has('phinx.config'));
     }
 
+    public function testConnectionDsnSupportsProcessedEnvironmentVariables(): void
+    {
+        $this->loadExtension([
+            'environment' => [
+                'connection' => [
+                    'dsn' => '%env(string:WRITE_DATABASE_URL)%',
+                ],
+            ],
+        ]);
+
+        $this->container->compile();
+
+        $definition = $this->container->getDefinition('phinx.config');
+        $arguments = $definition->getArguments();
+        self::assertIsArray($arguments[0]);
+        self::assertIsString($arguments[0]['environments']['default']['dsn']);
+        self::assertStringContainsString(
+            'string_WRITE_DATABASE_URL',
+            $arguments[0]['environments']['default']['dsn'],
+        );
+    }
+
     /**
      * @return iterable<string, array{string, class-string}>
      */
