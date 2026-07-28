@@ -11,7 +11,7 @@ The fastest way to install Phinx bundle is to add it to your project using Compo
 1. Require Phinx bundle as a dependency using Composer:
 
     ```
-    php composer.phar require umanit/phinx-bundle
+    php composer.phar require diablomedia/phinx-bundle
     ```
 
 1. Install bundle:
@@ -25,16 +25,16 @@ The fastest way to install Phinx bundle is to add it to your project using Compo
     ```php
     return [
         // [...]
-        Umanit\PhinxBundle\UmanitPhinxBundle::class => ['all' => true],
+        DiabloMedia\PhinxBundle\DiabloMediaPhinxBundle::class => ['all' => true],
     ];
     ```
     
-1. Add bundle config to `config/packages/umanit_phinx.yaml`
+1. Add bundle config to `config/packages/diablomedia_phinx.yaml`
 
    Example:
 
    ```yaml
-   umanit_phinx:
+   diablomedia_phinx:
        environment:
            connection:
                dsn: 'mysql://db_user:db_password@127.0.0.1:3306/db_name'

@@ -22,61 +22,73 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-namespace Umanit\PhinxBundle\Command;
 
+namespace DiabloMedia\PhinxBundle\Command;
+
+use Exception;
 use Phinx\Console\Command\AbstractCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class StatusCommand extends AbstractCommand
+class SeedRunCommand extends AbstractCommand
 {
     use CommonTrait;
 
     /**
      * {@inheritdoc}
      */
-    protected function configure()
+    protected function configure(): void
     {
-        $this->setName('phinx:status')
-            ->setAliases(['p:s'])
-            ->setDescription('Show migration status')
+        $this
+            ->setName('phinx:seed:run')
+            ->setAliases(['p:s:r'])
+            ->setDescription('Seed the database')
             ->addOption(
-                '--format',
-                '-f',
-                InputOption::VALUE_REQUIRED,
-                'The output format: text or json. Defaults to text.'
+                '--seed',
+                '-s',
+                InputOption::VALUE_REQUIRED | InputOption::VALUE_IS_ARRAY,
+                'The seed class(es) to run'
             )
             ->setHelp(
-<<<EOT
-The <info>status</info> command prints a list of all migrations, along with their current status
+                <<<EOT
+The <info>seed run</info> command runs all available seeds, optionally up to a specific class(es)
 
-<info>phinx status</info>
-<info>phinx status -f json</info>
+<info>phinx seed:run -e development</info>
+<info>phinx seed:run -e development -s MySeeder -s MyOtherSeeder</info>
+
 EOT
             );
     }
 
     /**
-     * Show the migration status.
+     * Seed the database.
      *
      * @param InputInterface $input
      * @param OutputInterface $output
      *
-     * @return integer 0 if all migrations are up, or an error code
+     * @return integer integer 0 on success, or an error code.
+     * @throws Exception
      */
-    protected function execute(InputInterface $input, OutputInterface $output):int
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $this->initialize($input, $output);
 
-        $format = $input->getOption('format');
+        $seeds = $input->getOption('seed');
 
-        if (null !== $format) {
-            $output->writeln('<info>using format</info> ' . $format);
+        // run the seeders
+        $start = \microtime(true);
+        if (\count($seeds) > 0) {
+            foreach ($seeds as $seed) {
+                $this->getManager()->seed('default', $seed);
+            }
+        } else {
+            $this->getManager()->seed('default');
         }
+        $end = \microtime(true);
 
-        // print the status
-        $this->getManager()->printStatus('default', $format);
+        $output->writeln('');
+        $output->writeln('<comment>All Done. Took ' . \sprintf('%.4fs', $end - $start) . '</comment>');
 
         return self::CODE_SUCCESS;
     }

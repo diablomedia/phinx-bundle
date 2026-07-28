@@ -23,7 +23,7 @@
  * THE SOFTWARE.
  */
 
-namespace Umanit\PhinxBundle\Command;
+namespace DiabloMedia\PhinxBundle\Command;
 
 use InvalidArgumentException;
 use Phinx\Config\NamespaceAwareInterface;

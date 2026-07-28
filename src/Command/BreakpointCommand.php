@@ -22,74 +22,66 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
+namespace DiabloMedia\PhinxBundle\Command;
 
-namespace Umanit\PhinxBundle\Command;
-
-use Exception;
 use Phinx\Console\Command\AbstractCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class SeedRunCommand extends AbstractCommand
+class BreakpointCommand extends AbstractCommand
 {
     use CommonTrait;
 
     /**
      * {@inheritdoc}
      */
-    protected function configure(): void
+    public function configure()
     {
-        $this
-            ->setName('phinx:seed:run')
-            ->setAliases(['p:s:r'])
-            ->setDescription('Seed the database')
-            ->addOption(
-                '--seed',
-                '-s',
-                InputOption::VALUE_REQUIRED | InputOption::VALUE_IS_ARRAY,
-                'The seed class(es) to run'
-            )
+        $this->setName('phinx:breakpoint')
+            ->setAliases(['p:b'])
+            ->setDescription('Manage breakpoints')
+            ->addOption('--target', '-t', InputOption::VALUE_REQUIRED, 'The version number to set or clear a breakpoint against')
+            ->addOption('--remove-all', '-r', InputOption::VALUE_NONE, 'Remove all breakpoints')
             ->setHelp(
-                <<<EOT
-The <info>seed run</info> command runs all available seeds, optionally up to a specific class(es)
+<<<EOT
+The <info>breakpoint</info> command allows you to set or clear a breakpoint against a specific target to inhibit rollbacks beyond a certain target.
+If no target is supplied then the most recent migration will be used.
+You cannot specify un-migrated targets
 
-<info>phinx seed:run -e development</info>
-<info>phinx seed:run -e development -s MySeeder -s MyOtherSeeder</info>
-
+<info>phinx breakpoint</info>
+<info>phinx breakpoint -t 20110103081132</info>
+<info>phinx breakpoint -r</info>
 EOT
-            );
+             );
     }
 
     /**
-     * Seed the database.
+     * Toggle the breakpoint.
      *
      * @param InputInterface $input
      * @param OutputInterface $output
-     *
-     * @return integer integer 0 on success, or an error code.
-     * @throws Exception
+     * @return int
      */
-    protected function execute(InputInterface $input, OutputInterface $output): int
+    protected function execute(InputInterface $input, OutputInterface $output):int
     {
         $this->initialize($input, $output);
 
-        $seeds = $input->getOption('seed');
+        $version = $input->getOption('target');
+        $removeAll = $input->getOption('remove-all');
 
-        // run the seeders
-        $start = \microtime(true);
-        if (\count($seeds) > 0) {
-            foreach ($seeds as $seed) {
-                $this->getManager()->seed('default', $seed);
-            }
-        } else {
-            $this->getManager()->seed('default');
+        if ($version && $removeAll){
+            throw new \InvalidArgumentException('Cannot toggle a breakpoint and remove all breakpoints at the same time.');
         }
-        $end = \microtime(true);
 
-        $output->writeln('');
-        $output->writeln('<comment>All Done. Took ' . \sprintf('%.4fs', $end - $start) . '</comment>');
-
+        // Remove all breakpoints
+        if ($removeAll){
+            $this->getManager()->removeBreakpoints('default');
+        } else {
+            // Toggle the breakpoint.
+            $this->getManager()->toggleBreakpoint('default', $version);
+        }
+        
         return self::CODE_SUCCESS;
     }
 }

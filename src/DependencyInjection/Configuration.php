@@ -22,7 +22,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-namespace Umanit\PhinxBundle\DependencyInjection;
+namespace DiabloMedia\PhinxBundle\DependencyInjection;
 
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\Config\Definition\ConfigurationInterface;
@@ -39,7 +39,7 @@ class Configuration implements ConfigurationInterface
      */
     public function getConfigTreeBuilder(): TreeBuilder
     {
-        $treeBuilder = new TreeBuilder('umanit_phinx');
+        $treeBuilder = new TreeBuilder('diablomedia_phinx');
 
         $treeBuilder->getRootNode()
             ->children()

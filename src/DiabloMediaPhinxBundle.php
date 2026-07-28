@@ -22,36 +22,10 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-namespace Umanit\PhinxBundle\Command;
+namespace DiabloMedia\PhinxBundle;
 
-use Phinx\Db\Adapter\AdapterFactory;
-use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\HttpKernel\Bundle\Bundle;
 
-
-/**
- * common code for commands
- *
- * @author Miha Vrhovnik <miha.vrhovnik@gmail.com>
- *
- */
-trait CommonTrait
+class DiabloMediaPhinxBundle extends Bundle
 {
-    /**
-     * @param InputInterface  $input
-     * @param OutputInterface $output
-     */
-    protected function initialize(InputInterface $input, OutputInterface $output)
-    {
-        /** @var ContainerInterface $container */
-        $container = $this->getApplication()->getKernel()->getContainer();
-        $this->setConfig($container->get('phinx.config'));
-        $this->loadManager($input, $output);
-
-        $adapters = $container->getParameter('phinx.adapters');
-        foreach ($adapters as $name => $class) {
-            AdapterFactory::instance()->registerAdapter($name, $class);
-        }
-    }
 }

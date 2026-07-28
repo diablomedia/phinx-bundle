@@ -23,7 +23,7 @@
  * THE SOFTWARE.
  */
 
-namespace Umanit\PhinxBundle\DependencyInjection;
+namespace DiabloMedia\PhinxBundle\DependencyInjection;
 
 use Phinx\Config\Config;
 use Symfony\Component\Config\FileLocator;
@@ -36,7 +36,7 @@ use Symfony\Component\HttpKernel\DependencyInjection\Extension;
  *
  * To learn more see {@link http://symfony.com/doc/current/cookbook/bundles/extension.html}
  */
-class UmanitPhinxExtension extends Extension
+class DiabloMediaPhinxExtension extends Extension
 {
     /**
      * {@inheritdoc}

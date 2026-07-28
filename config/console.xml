@@ -5,37 +5,37 @@
            xsi:schemaLocation="http://symfony.com/schema/dic/services https://symfony.com/schema/dic/services/services-1.0.xsd">
 
     <services>
-        <service id="umanit_phinx.command.breakpoint_command" class="Umanit\PhinxBundle\Command\BreakpointCommand">
+        <service id="diablomedia_phinx.command.breakpoint_command" class="DiabloMedia\PhinxBundle\Command\BreakpointCommand">
             <tag name="console.command" command="phinx:breakpoint" />
             <tag name="console.command" command="p:b" />
         </service>
 
-        <service id="umanit_phinx.command.create_command" class="Umanit\PhinxBundle\Command\CreateCommand">
+        <service id="diablomedia_phinx.command.create_command" class="DiabloMedia\PhinxBundle\Command\CreateCommand">
             <tag name="console.command" command="phinx:create" />
             <tag name="console.command" command="p:c" />
         </service>
 
-        <service id="umanit_phinx.command.migrate_command" class="Umanit\PhinxBundle\Command\MigrateCommand">
+        <service id="diablomedia_phinx.command.migrate_command" class="DiabloMedia\PhinxBundle\Command\MigrateCommand">
             <tag name="console.command" command="phinx:migrate" />
             <tag name="console.command" command="p:m" />
         </service>
 
-        <service id="umanit_phinx.command.rollback_command" class="Umanit\PhinxBundle\Command\RollbackCommand">
+        <service id="diablomedia_phinx.command.rollback_command" class="DiabloMedia\PhinxBundle\Command\RollbackCommand">
             <tag name="console.command" command="phinx:rollback" />
             <tag name="console.command" command="p:r" />
         </service>
 
-        <service id="umanit_phinx.command.status_command" class="Umanit\PhinxBundle\Command\StatusCommand">
+        <service id="diablomedia_phinx.command.status_command" class="DiabloMedia\PhinxBundle\Command\StatusCommand">
             <tag name="console.command" command="phinx:status" />
             <tag name="console.command" command="p:s" />
         </service>
 
-        <service id="umanit_phinx.command.seed_run_command" class="Umanit\PhinxBundle\Command\SeedRunCommand">
+        <service id="diablomedia_phinx.command.seed_run_command" class="DiabloMedia\PhinxBundle\Command\SeedRunCommand">
             <tag name="console.command" command="phinx:seed:run" />
             <tag name="console.command" command="p:s:r" />
         </service>
 
-        <service id="umanit_phinx.command.seed_create_command" class="Umanit\PhinxBundle\Command\SeedCreateCommand">
+        <service id="diablomedia_phinx.command.seed_create_command" class="DiabloMedia\PhinxBundle\Command\SeedCreateCommand">
             <tag name="console.command" command="phinx:seed:create" />
             <tag name="console.command" command="p:s:c" />
         </service>
