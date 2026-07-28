@@ -29,12 +29,12 @@ The fastest way to install Phinx bundle is to add it to your project using Compo
     ];
     ```
     
-1. Add bundle config to `config/packages/diablomedia_phinx.yaml`
+1. Add bundle config to `config/packages/diablo_media_phinx.yaml`
 
    Minimal example:
 
    ```yaml
-   diablomedia_phinx:
+   diablo_media_phinx:
        environment:
            connection:
                dsn: 'mysql://db_user:db_password@127.0.0.1:3306/db_name'
@@ -56,11 +56,12 @@ access the database.
 | `environment.migration_table` | string; `phinxlog` | Table used by Phinx to record which migrations have run. Schema-qualified names such as `phinx.log` are supported by databases such as PostgreSQL. |
 | `environment.table_prefix` | string; none | Prefix Phinx applies to table names handled through its adapter. |
 | `environment.table_suffix` | string; none | Suffix Phinx applies to table names handled through its adapter. |
+| `environment.prompt_password` | boolean; `false` | Prompts for the database password using a hidden Symfony Console question before database-dependent commands run. Create commands do not prompt. |
 
 For example:
 
 ```yaml
-diablomedia_phinx:
+diablo_media_phinx:
     migration_base_class: App\Migration\AbstractMigration
 
     paths:
@@ -83,3 +84,27 @@ The bundle exposes a single Phinx environment named `default`; Symfony
 configuration determines its connection and paths. See the
 [Phinx configuration reference](https://book.cakephp.org/phinx/0/en/configuration.html)
 for more detail about DSNs, migration paths, adapters, and migration behavior.
+
+### Interactive database password
+
+To keep the database password out of configuration and environment variables,
+omit it from the DSN and enable the password prompt:
+
+```yaml
+diablo_media_phinx:
+    environment:
+        prompt_password: true
+        connection:
+            dsn: 'mysql://db_user@127.0.0.1:3306/db_name'
+```
+
+Database-dependent commands will ask for the password without displaying it:
+
+```text
+Database password:
+```
+
+Commands run with `--no-interaction` cannot prompt and will stop with an
+explanatory error. For CI and automated deployments, use a separate Symfony
+configuration that supplies a complete DSN and leaves `prompt_password`
+disabled.

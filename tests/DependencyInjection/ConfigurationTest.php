@@ -20,7 +20,7 @@ final class ConfigurationTest extends TestCase
 
         self::assertSame('%kernel.project_dir%/src/Resources/db/migrations', $config['paths']['migrations']);
         self::assertSame('%kernel.project_dir%/src/Resources/db/seeds', $config['paths']['seeds']);
-        self::assertSame([], $config['environment']);
+        self::assertSame(['prompt_password' => false], $config['environment']);
     }
 
     public function testCustomConfigurationIsPreserved(): void
@@ -36,6 +36,7 @@ final class ConfigurationTest extends TestCase
                 'table_prefix' => 'prefix_',
                 'table_suffix' => '_suffix',
                 'migration_table' => 'migration_log',
+                'prompt_password' => true,
                 'connection' => ['dsn' => 'sqlite::memory:'],
             ],
         ]]);
@@ -47,6 +48,7 @@ final class ConfigurationTest extends TestCase
         self::assertSame('prefix_', $config['environment']['table_prefix']);
         self::assertSame('_suffix', $config['environment']['table_suffix']);
         self::assertSame('migration_log', $config['environment']['migration_table']);
+        self::assertTrue($config['environment']['prompt_password']);
     }
 
     public function testDsnIsRequired(): void

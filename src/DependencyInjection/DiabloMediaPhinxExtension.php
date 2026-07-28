@@ -27,7 +27,7 @@ declare(strict_types=1);
 
 namespace DiabloMedia\PhinxBundle\DependencyInjection;
 
-use Phinx\Config\Config;
+use DiabloMedia\PhinxBundle\Config\PhinxConfig;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
@@ -68,9 +68,11 @@ class DiabloMediaPhinxExtension extends Extension
             $options['environments']['default']['table_suffix'] = $config['environment']['table_suffix'];
         }
 
-        $env = $container->register('phinx.config', Config::class);
+        $env = $container->register('phinx.config', PhinxConfig::class);
         $env->setArguments([$options]);
         $env->setPublic(true);
+
+        $container->setParameter('phinx.prompt_password', $config['environment']['prompt_password']);
 
         if (isset($config['adapters'])) {
             $container->setParameter('phinx.adapters', $config['adapters']);

@@ -28,12 +28,14 @@ declare(strict_types=1);
 
 namespace DiabloMedia\PhinxBundle\Command;
 
+use DiabloMedia\PhinxBundle\Config\PhinxConfig;
 use Phinx\Db\Adapter\AdapterFactory;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Component\Console\Helper\QuestionHelper;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Question\Question;
 
 /**
  * common code for commands.
@@ -59,7 +61,32 @@ trait CommonTrait
         }
 
         $container = $application->getKernel()->getContainer();
-        $this->setConfig($container->get('phinx.config'));
+        $config = $container->get('phinx.config');
+        if (!$config instanceof PhinxConfig) {
+            throw new \LogicException('The phinx.config service must use the bundle PhinxConfig class.');
+        }
+
+        if ($this->requiresDatabaseConnection() && $container->getParameter('phinx.prompt_password')) {
+            if (!$input->isInteractive()) {
+                throw new \RuntimeException('A database password prompt is configured, but the command is running non-interactively.');
+            }
+
+            $question = new Question('Database password: ');
+            $question->setHidden(true);
+            $question->setHiddenFallback(false);
+            $question->setValidator(static function (mixed $password): string {
+                if (!\is_string($password) || '' === $password) {
+                    throw new \RuntimeException('The database password cannot be empty.');
+                }
+
+                return $password;
+            });
+
+            $password = $this->getQuestionHelper()->ask($input, $output, $question);
+            $config->setEnvironmentPassword('default', $password);
+        }
+
+        $this->setConfig($config);
         $this->loadManager($input, $output);
 
         $adapters = $container->getParameter('phinx.adapters');
@@ -76,5 +103,10 @@ trait CommonTrait
         }
 
         return $helper;
+    }
+
+    protected function requiresDatabaseConnection(): bool
+    {
+        return true;
     }
 }

@@ -71,6 +71,8 @@ class Configuration implements ConfigurationInterface
         $environmentChildren->scalarNode('table_prefix');
         $environmentChildren->scalarNode('table_suffix');
         $environmentChildren->scalarNode('migration_table');
+        $environmentChildren->booleanNode('prompt_password')
+            ->defaultFalse();
 
         $connection = $environmentChildren->arrayNode('connection');
         $connection->children()

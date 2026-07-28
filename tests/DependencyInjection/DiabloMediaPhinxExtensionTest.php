@@ -11,8 +11,8 @@ use DiabloMedia\PhinxBundle\Command\RollbackCommand;
 use DiabloMedia\PhinxBundle\Command\SeedCreateCommand;
 use DiabloMedia\PhinxBundle\Command\SeedRunCommand;
 use DiabloMedia\PhinxBundle\Command\StatusCommand;
+use DiabloMedia\PhinxBundle\Config\PhinxConfig;
 use DiabloMedia\PhinxBundle\DependencyInjection\DiabloMediaPhinxExtension;
-use Phinx\Config\Config;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -37,12 +37,13 @@ final class DiabloMediaPhinxExtensionTest extends TestCase
                 'migration_table' => 'migration_log',
                 'table_prefix' => 'prefix_',
                 'table_suffix' => '_suffix',
+                'prompt_password' => true,
                 'connection' => ['dsn' => 'sqlite::memory:'],
             ],
         ]);
 
         $definition = $this->container->getDefinition('phinx.config');
-        self::assertSame(Config::class, $definition->getClass());
+        self::assertSame(PhinxConfig::class, $definition->getClass());
         self::assertTrue($definition->isPublic());
         self::assertSame(['custom' => 'App\\Database\\CustomAdapter'], $this->container->getParameter('phinx.adapters'));
 
@@ -54,6 +55,7 @@ final class DiabloMediaPhinxExtensionTest extends TestCase
         self::assertSame('sqlite::memory:', $arguments[0]['environments']['default']['dsn']);
         self::assertSame('prefix_', $arguments[0]['environments']['default']['table_prefix']);
         self::assertSame('_suffix', $arguments[0]['environments']['default']['table_suffix']);
+        self::assertTrue($this->container->getParameter('phinx.prompt_password'));
     }
 
     /**
@@ -78,7 +80,7 @@ final class DiabloMediaPhinxExtensionTest extends TestCase
         self::assertIsArray($arguments[0]);
         self::assertSame([], $arguments[0]['environments']['default']);
 
-        $config = new Config($arguments[0]);
+        $config = new PhinxConfig($arguments[0]);
         self::assertSame('default', $config->getDefaultEnvironment());
 
         $this->container->compile();

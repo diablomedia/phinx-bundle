@@ -47,6 +47,11 @@ class CreateCommand extends AbstractCommand
      */
     public const CREATION_INTERFACE = \Phinx\Migration\CreationInterface::class;
 
+    protected function requiresDatabaseConnection(): bool
+    {
+        return false;
+    }
+
     protected function configure(): void
     {
         $this->configureCommonOptions();

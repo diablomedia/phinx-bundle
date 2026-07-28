@@ -41,6 +41,11 @@ class SeedCreateCommand extends AbstractCommand
 {
     use CommonTrait;
 
+    protected function requiresDatabaseConnection(): bool
+    {
+        return false;
+    }
+
     protected function configure(): void
     {
         $this->configureCommonOptions();
