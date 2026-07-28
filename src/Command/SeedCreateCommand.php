@@ -43,6 +43,8 @@ class SeedCreateCommand extends AbstractCommand
 
     protected function configure(): void
     {
+        $this->configureCommonOptions();
+
         $this->setName('phinx:seed:create')
             ->setAliases(['p:s:c'])
             ->setDescription('Create a new seeder')
@@ -59,6 +61,7 @@ EOT
 
         // An alternative template.
         $this->addOption('template', 't', InputOption::VALUE_REQUIRED, 'Use an alternative template');
+        $this->addOption('path', null, InputOption::VALUE_REQUIRED, 'Specify the path in which to create this seeder');
     }
 
     /**
@@ -81,8 +84,11 @@ EOT
         $this->initialize($input, $output);
 
         // get the seed path from the config
-        $path = $this->getConfig()->getSeedPaths();
-        $path = array_pop($path);
+        $path = $input->getOption('path');
+        if (!$path) {
+            $paths = $this->getConfig()->getSeedPaths();
+            $path = array_pop($paths);
+        }
 
         if (!file_exists($path)) {
             $helper = $this->getQuestionHelper();
@@ -133,13 +139,13 @@ EOT
             throw new \RuntimeException(\sprintf('The file "%s" could not be written to', $path));
         }
 
-        $output->writeln('<info>using seed base class</info> '.$classes['$useClassName']);
+        $output->writeln('<info>using seed base class</info> '.$classes['$useClassName'], $this->verbosityLevel);
         if (null !== $altTemplate && file_exists($altTemplate)) {
-            $output->writeln('<info>using alternative template</info> '.$altTemplate);
+            $output->writeln('<info>using alternative template</info> '.$altTemplate, $this->verbosityLevel);
         } else {
-            $output->writeln('<info>using default template</info>');
+            $output->writeln('<info>using default template</info>', $this->verbosityLevel);
         }
-        $output->writeln('<info>created</info> .'.str_replace(getcwd(), '', $filePath));
+        $output->writeln('<info>created</info> .'.str_replace(getcwd(), '', $filePath), $this->verbosityLevel);
 
         return self::CODE_SUCCESS;
     }

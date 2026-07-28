@@ -38,6 +38,8 @@ class StatusCommand extends AbstractCommand
 
     protected function configure(): void
     {
+        $this->configureCommonOptions();
+
         $this->setName('phinx:status')
             ->setAliases(['p:s'])
             ->setDescription('Show migration status')
@@ -69,7 +71,7 @@ EOT
         $format = $input->getOption('format');
 
         if (null !== $format) {
-            $output->writeln('<info>using format</info> '.$format);
+            $output->writeln('<info>using format</info> '.$format, $this->verbosityLevel);
         }
 
         // print the status

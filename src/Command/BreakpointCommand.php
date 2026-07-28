@@ -39,10 +39,14 @@ class BreakpointCommand extends AbstractCommand
 
     public function configure(): void
     {
+        $this->configureCommonOptions();
+
         $this->setName('phinx:breakpoint')
             ->setAliases(['p:b'])
             ->setDescription('Manage breakpoints')
             ->addOption('--target', '-t', InputOption::VALUE_REQUIRED, 'The version number to set or clear a breakpoint against')
+            ->addOption('--set', '-s', InputOption::VALUE_NONE, 'Set the breakpoint')
+            ->addOption('--unset', '-u', InputOption::VALUE_NONE, 'Unset the breakpoint')
             ->addOption('--remove-all', '-r', InputOption::VALUE_NONE, 'Remove all breakpoints')
             ->setHelp(
                 <<<EOT
@@ -66,16 +70,24 @@ EOT
 
         $version = $input->getOption('target');
         $removeAll = $input->getOption('remove-all');
+        $set = $input->getOption('set');
+        $unset = $input->getOption('unset');
 
         if ($version && $removeAll) {
             throw new \InvalidArgumentException('Cannot toggle a breakpoint and remove all breakpoints at the same time.');
         }
 
-        // Remove all breakpoints
+        if (($set && $unset) || ($set && $removeAll) || ($unset && $removeAll)) {
+            throw new \InvalidArgumentException('Cannot use more than one of --set, --unset, or --remove-all at the same time.');
+        }
+
         if ($removeAll) {
             $this->getManager()->removeBreakpoints('default');
+        } elseif ($set) {
+            $this->getManager()->setBreakpoint('default', $version);
+        } elseif ($unset) {
+            $this->getManager()->unsetBreakpoint('default', $version);
         } else {
-            // Toggle the breakpoint.
             $this->getManager()->toggleBreakpoint('default', $version);
         }
 

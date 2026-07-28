@@ -38,6 +38,8 @@ class SeedRunCommand extends AbstractCommand
 
     protected function configure(): void
     {
+        $this->configureCommonOptions();
+
         $this
             ->setName('phinx:seed:run')
             ->setAliases(['p:s:r'])
@@ -83,8 +85,8 @@ EOT
         }
         $end = microtime(true);
 
-        $output->writeln('');
-        $output->writeln('<comment>All Done. Took '.\sprintf('%.4fs', $end - $start).'</comment>');
+        $output->writeln('', $this->verbosityLevel);
+        $output->writeln('<comment>All Done. Took '.\sprintf('%.4fs', $end - $start).'</comment>', $this->verbosityLevel);
 
         return self::CODE_SUCCESS;
     }

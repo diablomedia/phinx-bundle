@@ -32,6 +32,7 @@ use Phinx\Db\Adapter\AdapterFactory;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Component\Console\Helper\QuestionHelper;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
@@ -41,8 +42,17 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 trait CommonTrait
 {
+    protected function configureCommonOptions(): void
+    {
+        $this->addOption('--no-info', null, InputOption::VALUE_NONE, 'Hides all debug information');
+    }
+
     protected function initialize(InputInterface $input, OutputInterface $output): void
     {
+        if ($input->getOption('no-info')) {
+            $this->verbosityLevel = OutputInterface::VERBOSITY_VERBOSE;
+        }
+
         $application = $this->getApplication();
         if (!$application instanceof Application) {
             throw new \LogicException('Phinx commands must run within a Symfony FrameworkBundle application.');

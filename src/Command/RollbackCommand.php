@@ -45,6 +45,8 @@ class RollbackCommand extends AbstractCommand
 
     protected function configure(): void
     {
+        $this->configureCommonOptions();
+
         $this
             ->setName('phinx:rollback')
             ->setAliases(['p:r'])
@@ -67,6 +69,8 @@ class RollbackCommand extends AbstractCommand
                 InputOption::VALUE_NONE,
                 'Force rollback to ignore breakpoints'
             )
+            ->addOption('--dry-run', '-x', InputOption::VALUE_NONE, 'Dump query to standard output instead of executing it')
+            ->addOption('--fake', null, InputOption::VALUE_NONE, "Mark any rollbacks selected as run, but don't actually execute them")
             ->setHelp(
                 <<<EOT
 The <info>rollback</info> command reverts the last migration, or optionally up to a specific version
@@ -98,6 +102,7 @@ EOT
         $version = $input->getOption('target');
         $date = $input->getOption('date');
         $force = (bool) $input->getOption('force');
+        $fake = (bool) $input->getOption('fake');
         $noInteraction = $input->getOption('no-interaction');
 
         if (!$noInteraction) {
@@ -118,14 +123,14 @@ EOT
         $start = microtime(true);
         if (null !== $date) {
             $targetDate = new \DateTime($date);
-            $this->getManager()->rollback('default', $targetDate->format('YmdHis'), $force, false);
+            $this->getManager()->rollback('default', $targetDate->format('YmdHis'), $force, false, $fake);
         } else {
-            $this->getManager()->rollback('default', $version, $force);
+            $this->getManager()->rollback('default', $version, $force, true, $fake);
         }
         $end = microtime(true);
 
-        $output->writeln('');
-        $output->writeln('<comment>All Done. Took '.\sprintf('%.4fs', $end - $start).'</comment>');
+        $output->writeln('', $this->verbosityLevel);
+        $output->writeln('<comment>All Done. Took '.\sprintf('%.4fs', $end - $start).'</comment>', $this->verbosityLevel);
 
         return self::CODE_SUCCESS;
     }

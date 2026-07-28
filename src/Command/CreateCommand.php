@@ -28,6 +28,7 @@ declare(strict_types=1);
 
 namespace DiabloMedia\PhinxBundle\Command;
 
+use Phinx\Config\Config;
 use Phinx\Config\NamespaceAwareInterface;
 use Phinx\Console\Command\AbstractCommand;
 use Phinx\Util\Util;
@@ -48,6 +49,8 @@ class CreateCommand extends AbstractCommand
 
     protected function configure(): void
     {
+        $this->configureCommonOptions();
+
         $this->setName('phinx:create')
             ->setAliases(['p:c'])
             ->setDescription('Create a new migration')
@@ -71,6 +74,8 @@ class CreateCommand extends AbstractCommand
             InputOption::VALUE_REQUIRED,
             'Use a class implementing "'.self::CREATION_INTERFACE.'" to generate the template'
         );
+        $this->addOption('path', null, InputOption::VALUE_REQUIRED, 'Specify the path in which to create this migration');
+        $this->addOption('style', null, InputOption::VALUE_REQUIRED, 'Specify the style of migration to create');
     }
 
     /**
@@ -95,8 +100,11 @@ class CreateCommand extends AbstractCommand
         $this->initialize($input, $output);
 
         // get the migration path from the config
-        $path = $this->getConfig()->getMigrationPaths();
-        $path = array_pop($path);
+        $path = $input->getOption('path');
+        if (!$path) {
+            $paths = $this->getConfig()->getMigrationPaths();
+            $path = array_pop($paths);
+        }
 
         if (!file_exists($path)) {
             $helper = $this->getQuestionHelper();
@@ -142,8 +150,12 @@ class CreateCommand extends AbstractCommand
         // Get the alternative template and static class options from the command line, but only allow one of them.
         $altTemplate = $input->getOption('template');
         $creationClassName = $input->getOption('class');
+        $style = $input->getOption('style');
         if ($altTemplate && $creationClassName) {
             throw new \InvalidArgumentException('Cannot use --template and --class at the same time');
+        }
+        if ($style && !\in_array($style, [Config::TEMPLATE_STYLE_CHANGE, Config::TEMPLATE_STYLE_UP_DOWN], true)) {
+            throw new \InvalidArgumentException('--style should be one of '.Config::TEMPLATE_STYLE_CHANGE.' or '.Config::TEMPLATE_STYLE_UP_DOWN);
         }
 
         // If no commandline options then use the defaults.
@@ -188,7 +200,7 @@ class CreateCommand extends AbstractCommand
             $contents = $creationClass->getMigrationTemplate();
         } else {
             // Load the alternative template if it is defined.
-            $contents = file_get_contents($altTemplate ?: $this->getMigrationTemplateFilename($defaultStyle));
+            $contents = file_get_contents($altTemplate ?: $this->getMigrationTemplateFilename($style ?: $defaultStyle));
         }
 
         // inject the class names appropriate to this migration
@@ -215,17 +227,17 @@ class CreateCommand extends AbstractCommand
             );
         }
 
-        $output->writeln('<info>using migration base class</info> '.$classes['$useClassName']);
+        $output->writeln('<info>using migration base class</info> '.$classes['$useClassName'], $this->verbosityLevel);
 
         if (!empty($altTemplate)) {
-            $output->writeln('<info>using alternative template</info> '.$altTemplate);
+            $output->writeln('<info>using alternative template</info> '.$altTemplate, $this->verbosityLevel);
         } elseif (!empty($creationClassName)) {
-            $output->writeln('<info>using template creation class</info> '.$creationClassName);
+            $output->writeln('<info>using template creation class</info> '.$creationClassName, $this->verbosityLevel);
         } else {
-            $output->writeln('<info>using default template</info>');
+            $output->writeln('<info>using default template</info>', $this->verbosityLevel);
         }
 
-        $output->writeln('<info>created</info> '.ltrim(str_replace(getcwd(), '', $filePath), '/'));
+        $output->writeln('<info>created</info> '.ltrim(str_replace(getcwd(), '', $filePath), '/'), $this->verbosityLevel);
 
         return self::CODE_SUCCESS;
     }

@@ -38,6 +38,8 @@ class MigrateCommand extends AbstractCommand
 
     protected function configure(): void
     {
+        $this->configureCommonOptions();
+
         $this
             ->setName('phinx:migrate')
             ->setAliases(['p:m'])
@@ -54,6 +56,8 @@ class MigrateCommand extends AbstractCommand
                 InputOption::VALUE_REQUIRED,
                 'The date to migrate to'
             )
+            ->addOption('--dry-run', '-x', InputOption::VALUE_NONE, 'Dump query to standard output instead of executing it')
+            ->addOption('--fake', null, InputOption::VALUE_NONE, "Mark any migrations selected as run, but don't actually execute them")
             ->setHelp(
                 <<<EOT
 The <info>migrate</info> command runs all available migrations, optionally up to a specific version
@@ -81,27 +85,28 @@ EOT
 
         $version = $input->getOption('target');
         $date = $input->getOption('date');
+        $fake = (bool) $input->getOption('fake');
 
         $envOptions = $this->getConfig()->getEnvironment('default');
 
         if (isset($envOptions['table_prefix'])) {
-            $output->writeln('<info>using table prefix</info> '.$envOptions['table_prefix']);
+            $output->writeln('<info>using table prefix</info> '.$envOptions['table_prefix'], $this->verbosityLevel);
         }
         if (isset($envOptions['table_suffix'])) {
-            $output->writeln('<info>using table suffix</info> '.$envOptions['table_suffix']);
+            $output->writeln('<info>using table suffix</info> '.$envOptions['table_suffix'], $this->verbosityLevel);
         }
 
         // run the migrations
         $start = microtime(true);
         if (null !== $date) {
-            $this->getManager()->migrateToDateTime('default', new \DateTime($date));
+            $this->getManager()->migrateToDateTime('default', new \DateTime($date), $fake);
         } else {
-            $this->getManager()->migrate('default', $version);
+            $this->getManager()->migrate('default', $version, $fake);
         }
         $end = microtime(true);
 
-        $output->writeln('');
-        $output->writeln('<comment>All Done. Took '.\sprintf('%.4fs', $end - $start).'</comment>');
+        $output->writeln('', $this->verbosityLevel);
+        $output->writeln('<comment>All Done. Took '.\sprintf('%.4fs', $end - $start).'</comment>', $this->verbosityLevel);
 
         return self::CODE_SUCCESS;
     }
