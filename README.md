@@ -101,7 +101,7 @@ diablo_media_phinx:
 Database-dependent commands will ask for the password without displaying it:
 
 ```text
-Database password:
+Password for db_user@127.0.0.1:
 ```
 
 Commands run with `--no-interaction` cannot prompt and will stop with an

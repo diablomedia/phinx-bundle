@@ -70,8 +70,6 @@ EOT
      */
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $this->initialize($input, $output);
-
         $seeds = $input->getOption('seed');
 
         // run the seeders

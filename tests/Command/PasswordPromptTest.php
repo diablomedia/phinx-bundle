@@ -25,12 +25,14 @@ final class PasswordPromptTest extends TestCase
         [$command, $config] = $this->createCommand();
         $tester = new CommandTester($command);
         $helper = $this->createMock(QuestionHelper::class);
-        $helper->method('ask')
+        $helper->expects(self::once())
+            ->method('ask')
             ->willReturnCallback(static function (
                 InputInterface $input,
                 OutputInterface $output,
                 Question $question,
             ): string {
+                self::assertSame('Password for db_user@127.0.0.1: ', $question->getQuestion());
                 self::assertTrue($question->isHidden());
                 self::assertFalse($question->isHiddenFallback());
 
@@ -104,8 +106,6 @@ final class PasswordPromptCommand extends AbstractCommand
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $this->initialize($input, $output);
-
         return self::SUCCESS;
     }
 }

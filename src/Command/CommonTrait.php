@@ -31,6 +31,7 @@ namespace DiabloMedia\PhinxBundle\Command;
 use DiabloMedia\PhinxBundle\Config\PhinxConfig;
 use Phinx\Db\Adapter\AdapterFactory;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
+use Symfony\Component\Console\Formatter\OutputFormatter;
 use Symfony\Component\Console\Helper\QuestionHelper;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -71,7 +72,7 @@ trait CommonTrait
                 throw new \RuntimeException('A database password prompt is configured, but the command is running non-interactively.');
             }
 
-            $question = new Question('Database password: ');
+            $question = new Question($this->getDatabasePasswordPrompt($config));
             $question->setHidden(true);
             $question->setHiddenFallback(false);
             $question->setValidator(static function (mixed $password): string {
@@ -103,6 +104,23 @@ trait CommonTrait
         }
 
         return $helper;
+    }
+
+    private function getDatabasePasswordPrompt(PhinxConfig $config): string
+    {
+        $environment = $config->getEnvironment('default');
+        $user = $environment['user'] ?? null;
+        $host = $environment['host'] ?? null;
+
+        if (\is_string($user) && '' !== $user && \is_string($host) && '' !== $host) {
+            return \sprintf(
+                'Password for %s@%s: ',
+                OutputFormatter::escape($user),
+                OutputFormatter::escape($host),
+            );
+        }
+
+        return 'Database password: ';
     }
 
     protected function requiresDatabaseConnection(): bool

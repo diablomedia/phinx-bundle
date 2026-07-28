@@ -66,8 +66,6 @@ EOT
      */
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $this->initialize($input, $output);
-
         $format = $input->getOption('format');
 
         if (null !== $format) {

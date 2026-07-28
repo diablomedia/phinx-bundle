@@ -66,8 +66,6 @@ EOT
      */
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $this->initialize($input, $output);
-
         $version = $input->getOption('target');
         $removeAll = $input->getOption('remove-all');
         $set = $input->getOption('set');

@@ -97,8 +97,6 @@ EOT
      */
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $this->initialize($input, $output);
-
         $version = $input->getOption('target');
         $date = $input->getOption('date');
         $force = (bool) $input->getOption('force');

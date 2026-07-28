@@ -102,8 +102,6 @@ class CreateCommand extends AbstractCommand
      */
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $this->initialize($input, $output);
-
         // get the migration path from the config
         $path = $input->getOption('path');
         if (!$path) {
