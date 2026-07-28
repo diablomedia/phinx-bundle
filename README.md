@@ -31,7 +31,7 @@ The fastest way to install Phinx bundle is to add it to your project using Compo
     
 1. Add bundle config to `config/packages/diablomedia_phinx.yaml`
 
-   Example:
+   Minimal example:
 
    ```yaml
    diablomedia_phinx:
@@ -40,4 +40,46 @@ The fastest way to install Phinx bundle is to add it to your project using Compo
                dsn: 'mysql://db_user:db_password@127.0.0.1:3306/db_name'
    ```
 
-   See `DependencyInjection/Configuration.php` for full list of available options.
+### Configuration
+
+The bundle can be installed and Symfony's cache can be built without any
+configuration. A database connection is required before running commands that
+access the database.
+
+| Option | Type / default | Description |
+| --- | --- | --- |
+| `migration_base_class` | `class-string`; Phinx's `AbstractMigration` | Base class used by newly generated migrations. The class must extend Phinx's `AbstractMigration`. |
+| `adapters` | map; empty | Registers custom Phinx database adapters. Each key is the adapter name used by a DSN and each value is a class implementing Phinx's `AdapterInterface`. |
+| `paths.migrations` | string, list, or namespace map; `%kernel.project_dir%/src/Resources/db/migrations` | Location or locations scanned for migrations. A keyed map associates migration namespaces with paths. Glob patterns are supported by Phinx. |
+| `paths.seeds` | string, list, or namespace map; `%kernel.project_dir%/src/Resources/db/seeds` | Location or locations scanned for seed classes. A keyed map associates seed namespaces with paths. |
+| `environment.connection.dsn` | string; required when `connection` is configured | Database-agnostic connection URL in the form `<adapter>://[<user>[:<password>]@]<host>[:<port>]/<database>[?<options>]`. Common adapters are `mysql`, `pgsql`, `sqlite`, and `sqlsrv`. |
+| `environment.migration_table` | string; `phinxlog` | Table used by Phinx to record which migrations have run. Schema-qualified names such as `phinx.log` are supported by databases such as PostgreSQL. |
+| `environment.table_prefix` | string; none | Prefix Phinx applies to table names handled through its adapter. |
+| `environment.table_suffix` | string; none | Suffix Phinx applies to table names handled through its adapter. |
+
+For example:
+
+```yaml
+diablomedia_phinx:
+    migration_base_class: App\Migration\AbstractMigration
+
+    paths:
+        migrations:
+            App\Migrations: '%kernel.project_dir%/migrations'
+        seeds:
+            App\Seeds: '%kernel.project_dir%/seeds'
+
+    adapters:
+        custom: App\Database\CustomPhinxAdapter
+
+    environment:
+        migration_table: phinx_migrations
+        table_prefix: app_
+        connection:
+            dsn: 'mysql://db_user:db_password@127.0.0.1:3306/db_name?charset=utf8mb4'
+```
+
+The bundle exposes a single Phinx environment named `default`; Symfony
+configuration determines its connection and paths. See the
+[Phinx configuration reference](https://book.cakephp.org/phinx/0/en/configuration.html)
+for more detail about DSNs, migration paths, adapters, and migration behavior.
