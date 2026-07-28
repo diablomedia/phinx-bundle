@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * Released under the MIT License.
  *
@@ -25,7 +27,6 @@
 
 namespace DiabloMedia\PhinxBundle\Command;
 
-use Exception;
 use Phinx\Console\Command\AbstractCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -35,9 +36,6 @@ class SeedRunCommand extends AbstractCommand
 {
     use CommonTrait;
 
-    /**
-     * {@inheritdoc}
-     */
     protected function configure(): void
     {
         $this
@@ -64,11 +62,9 @@ EOT
     /**
      * Seed the database.
      *
-     * @param InputInterface $input
-     * @param OutputInterface $output
+     * @return int integer 0 on success, or an error code
      *
-     * @return integer integer 0 on success, or an error code.
-     * @throws Exception
+     * @throws \Exception
      */
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
@@ -77,7 +73,7 @@ EOT
         $seeds = $input->getOption('seed');
 
         // run the seeders
-        $start = \microtime(true);
+        $start = microtime(true);
         if (\count($seeds) > 0) {
             foreach ($seeds as $seed) {
                 $this->getManager()->seed('default', $seed);
@@ -85,10 +81,10 @@ EOT
         } else {
             $this->getManager()->seed('default');
         }
-        $end = \microtime(true);
+        $end = microtime(true);
 
         $output->writeln('');
-        $output->writeln('<comment>All Done. Took ' . \sprintf('%.4fs', $end - $start) . '</comment>');
+        $output->writeln('<comment>All Done. Took '.\sprintf('%.4fs', $end - $start).'</comment>');
 
         return self::CODE_SUCCESS;
     }

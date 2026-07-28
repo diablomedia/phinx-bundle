@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * Released under the MIT License.
  *
@@ -22,6 +24,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
+
 namespace DiabloMedia\PhinxBundle\Command;
 
 use Phinx\Config\NamespaceAwareInterface;
@@ -40,22 +43,19 @@ class CreateCommand extends AbstractCommand
     /**
      * The name of the interface that any external template creation class is required to implement.
      */
-    const CREATION_INTERFACE = 'Phinx\Migration\CreationInterface';
+    public const CREATION_INTERFACE = \Phinx\Migration\CreationInterface::class;
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function configure()
+    protected function configure(): void
     {
         $this->setName('phinx:create')
             ->setAliases(['p:c'])
             ->setDescription('Create a new migration')
             ->addArgument('migrationName', InputArgument::REQUIRED, 'What is the name of the migration (in CamelCase)?')
             ->setHelp(
-                sprintf(
+                \sprintf(
                     '%sCreates a new database migration%s',
-                    PHP_EOL,
-                    PHP_EOL
+                    \PHP_EOL,
+                    \PHP_EOL
                 )
             );
 
@@ -68,7 +68,7 @@ class CreateCommand extends AbstractCommand
             'class',
             'l',
             InputOption::VALUE_REQUIRED,
-            'Use a class implementing "' . self::CREATION_INTERFACE . '" to generate the template'
+            'Use a class implementing "'.self::CREATION_INTERFACE.'" to generate the template'
         );
     }
 
@@ -86,14 +86,10 @@ class CreateCommand extends AbstractCommand
     /**
      * Create the new migration.
      *
-     * @param InputInterface $input
-     * @param OutputInterface $output
-     *
      * @throws \RuntimeException
      * @throws \InvalidArgumentException
-     * @return int
      */
-    protected function execute(InputInterface $input, OutputInterface $output):int
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $this->initialize($input, $output);
 
@@ -119,35 +115,19 @@ class CreateCommand extends AbstractCommand
         $className = $input->getArgument('migrationName');
 
         if (!Util::isValidPhinxClassName($className)) {
-            throw new \InvalidArgumentException(
-                sprintf(
-                    'The migration class name "%s" is invalid. Please use CamelCase format.',
-                    $className
-                )
-            );
+            throw new \InvalidArgumentException(\sprintf('The migration class name "%s" is invalid. Please use CamelCase format.', $className));
         }
 
         if (!Util::isUniqueMigrationClassName($className, $path)) {
-            throw new \InvalidArgumentException(
-                sprintf(
-                    'The migration class name "%s%s" already exists',
-                    $namespace ? ($namespace . '\\') : '',
-                    $className
-                )
-            );
+            throw new \InvalidArgumentException(\sprintf('The migration class name "%s%s" already exists', $namespace ? ($namespace.'\\') : '', $className));
         }
 
         // Compute the file path
         $fileName = Util::mapClassNameToFileName($className);
-        $filePath = $path . DIRECTORY_SEPARATOR . $fileName;
+        $filePath = $path.\DIRECTORY_SEPARATOR.$fileName;
 
         if (is_file($filePath)) {
-            throw new \InvalidArgumentException(
-                sprintf(
-                    'The file "%s" already exists',
-                    $filePath
-                )
-            );
+            throw new \InvalidArgumentException(\sprintf('The file "%s" already exists', $filePath));
         }
 
         // Get the alternative template and static class options from the config, but only allow one of them.
@@ -172,12 +152,7 @@ class CreateCommand extends AbstractCommand
 
         // Verify the alternative template file's existence.
         if ($altTemplate && !is_file($altTemplate)) {
-            throw new \InvalidArgumentException(
-                sprintf(
-                    'The alternative template file "%s" does not exist',
-                    $altTemplate
-                )
-            );
+            throw new \InvalidArgumentException(\sprintf('The alternative template file "%s" does not exist', $altTemplate));
         }
 
         // Verify that the template creation class (or the aliased class) exists and that it implements the required interface.
@@ -187,41 +162,17 @@ class CreateCommand extends AbstractCommand
             if (!class_exists($creationClassName)) {
                 $aliasedClassName = $this->getConfig()->getAlias($creationClassName);
                 if ($aliasedClassName && !class_exists($aliasedClassName)) {
-                    throw new \InvalidArgumentException(
-                        sprintf(
-                            'The class "%s" via the alias "%s" does not exist',
-                            $aliasedClassName,
-                            $creationClassName
-                        )
-                    );
+                    throw new \InvalidArgumentException(\sprintf('The class "%s" via the alias "%s" does not exist', $aliasedClassName, $creationClassName));
                 } elseif (!$aliasedClassName) {
-                    throw new \InvalidArgumentException(
-                        sprintf(
-                            'The class "%s" does not exist',
-                            $creationClassName
-                        )
-                    );
+                    throw new \InvalidArgumentException(\sprintf('The class "%s" does not exist', $creationClassName));
                 }
             }
 
             // Does the class implement the required interface?
             if (!$aliasedClassName && !is_subclass_of($creationClassName, self::CREATION_INTERFACE)) {
-                throw new \InvalidArgumentException(
-                    sprintf(
-                        'The class "%s" does not implement the required interface "%s"',
-                        $creationClassName,
-                        self::CREATION_INTERFACE
-                    )
-                );
+                throw new \InvalidArgumentException(\sprintf('The class "%s" does not implement the required interface "%s"', $creationClassName, self::CREATION_INTERFACE));
             } elseif ($aliasedClassName && !is_subclass_of($aliasedClassName, self::CREATION_INTERFACE)) {
-                throw new \InvalidArgumentException(
-                    sprintf(
-                        'The class "%s" via the alias "%s" does not implement the required interface "%s"',
-                        $aliasedClassName,
-                        $creationClassName,
-                        self::CREATION_INTERFACE
-                    )
-                );
+                throw new \InvalidArgumentException(\sprintf('The class "%s" via the alias "%s" does not implement the required interface "%s"', $aliasedClassName, $creationClassName, self::CREATION_INTERFACE));
             }
         }
 
@@ -239,23 +190,18 @@ class CreateCommand extends AbstractCommand
         }
 
         // inject the class names appropriate to this migration
-        $classes = array(
-            '$namespaceDefinition' => $namespace !== null ? ('namespace ' . $namespace . ';') : '',
+        $classes = [
+            '$namespaceDefinition' => null !== $namespace ? ('namespace '.$namespace.';') : '',
             '$namespace' => $namespace,
             '$useClassName' => $this->getConfig()->getMigrationBaseClassName(false),
             '$className' => $className,
             '$version' => Util::getVersionFromFileName($fileName),
             '$baseClassName' => $this->getConfig()->getMigrationBaseClassName(true),
-        );
+        ];
         $contents = strtr($contents, $classes);
 
         if (false === file_put_contents($filePath, $contents)) {
-            throw new \RuntimeException(
-                sprintf(
-                    'The file "%s" could not be written to',
-                    $path
-                )
-            );
+            throw new \RuntimeException(\sprintf('The file "%s" could not be written to', $path));
         }
 
         // Do we need to do the post creation call to the creation class?
@@ -267,17 +213,17 @@ class CreateCommand extends AbstractCommand
             );
         }
 
-        $output->writeln('<info>using migration base class</info> ' . $classes['$useClassName']);
+        $output->writeln('<info>using migration base class</info> '.$classes['$useClassName']);
 
         if (!empty($altTemplate)) {
-            $output->writeln('<info>using alternative template</info> ' . $altTemplate);
+            $output->writeln('<info>using alternative template</info> '.$altTemplate);
         } elseif (!empty($creationClassName)) {
-            $output->writeln('<info>using template creation class</info> ' . $creationClassName);
+            $output->writeln('<info>using template creation class</info> '.$creationClassName);
         } else {
             $output->writeln('<info>using default template</info>');
         }
 
-        $output->writeln('<info>created</info> ' . ltrim(str_replace(getcwd(), '', $filePath), '/'));
+        $output->writeln('<info>created</info> '.ltrim(str_replace(getcwd(), '', $filePath), '/'));
 
         return self::CODE_SUCCESS;
     }

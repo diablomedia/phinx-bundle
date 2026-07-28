@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * Released under the MIT License.
  *
@@ -33,17 +35,14 @@ use Symfony\Component\Console\Question\ConfirmationQuestion;
 
 class RollbackCommand extends AbstractCommand
 {
+    use CommonTrait;
     /**
      * Exit code when the command is started but interrupted before execution.
+     *
      * @var int
      */
-    const CODE_ABORTED = 4;
+    public const CODE_ABORTED = 4;
 
-    use CommonTrait;
-
-    /**
-     * {@inheritdoc}
-     */
     protected function configure(): void
     {
         $this
@@ -90,10 +89,8 @@ EOT
     /**
      * Rollback the migration.
      *
-     * @param InputInterface  $input
-     * @param OutputInterface $output
-     *
      * @return void
+     *
      * @throws \Exception
      */
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -102,7 +99,7 @@ EOT
 
         $version = $input->getOption('target');
         $date = $input->getOption('date');
-        $force = (bool)$input->getOption('force');
+        $force = (bool) $input->getOption('force');
         $noInteraction = $input->getOption('no-interaction');
 
         if (!$noInteraction) {
@@ -110,8 +107,8 @@ EOT
             $helper = $this->getHelper('question');
 
             $message = '<info>Careful, would rollback the database <comment>%s</comment>. '
-                . 'Do you want to continue? (yes/no)</info> [<comment>no</comment>]: ';
-            $question = new ConfirmationQuestion(sprintf($message, $options['name']), false);
+                .'Do you want to continue? (yes/no)</info> [<comment>no</comment>]: ';
+            $question = new ConfirmationQuestion(\sprintf($message, $options['name']), false);
             $question->setAutocompleterValues(['yes', 'no']);
 
             if (!$helper->ask($input, $output, $question)) {
@@ -129,7 +126,7 @@ EOT
         $end = microtime(true);
 
         $output->writeln('');
-        $output->writeln('<comment>All Done. Took '.sprintf('%.4fs', $end - $start).'</comment>');
+        $output->writeln('<comment>All Done. Took '.\sprintf('%.4fs', $end - $start).'</comment>');
 
         return self::CODE_SUCCESS;
     }

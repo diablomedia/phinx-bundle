@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * Released under the MIT License.
  *
@@ -22,6 +24,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
+
 namespace DiabloMedia\PhinxBundle\Command;
 
 use Phinx\Db\Adapter\AdapterFactory;
@@ -29,20 +32,14 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
-
 /**
- * common code for commands
+ * common code for commands.
  *
  * @author Miha Vrhovnik <miha.vrhovnik@gmail.com>
- *
  */
 trait CommonTrait
 {
-    /**
-     * @param InputInterface  $input
-     * @param OutputInterface $output
-     */
-    protected function initialize(InputInterface $input, OutputInterface $output)
+    protected function initialize(InputInterface $input, OutputInterface $output): void
     {
         /** @var ContainerInterface $container */
         $container = $this->getApplication()->getKernel()->getContainer();

@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * Released under the MIT License.
  *
@@ -22,6 +24,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
+
 namespace DiabloMedia\PhinxBundle\Command;
 
 use Phinx\Console\Command\AbstractCommand;
@@ -33,10 +36,7 @@ class BreakpointCommand extends AbstractCommand
 {
     use CommonTrait;
 
-    /**
-     * {@inheritdoc}
-     */
-    public function configure()
+    public function configure(): void
     {
         $this->setName('phinx:breakpoint')
             ->setAliases(['p:b'])
@@ -44,7 +44,7 @@ class BreakpointCommand extends AbstractCommand
             ->addOption('--target', '-t', InputOption::VALUE_REQUIRED, 'The version number to set or clear a breakpoint against')
             ->addOption('--remove-all', '-r', InputOption::VALUE_NONE, 'Remove all breakpoints')
             ->setHelp(
-<<<EOT
+                <<<EOT
 The <info>breakpoint</info> command allows you to set or clear a breakpoint against a specific target to inhibit rollbacks beyond a certain target.
 If no target is supplied then the most recent migration will be used.
 You cannot specify un-migrated targets
@@ -53,35 +53,31 @@ You cannot specify un-migrated targets
 <info>phinx breakpoint -t 20110103081132</info>
 <info>phinx breakpoint -r</info>
 EOT
-             );
+            );
     }
 
     /**
      * Toggle the breakpoint.
-     *
-     * @param InputInterface $input
-     * @param OutputInterface $output
-     * @return int
      */
-    protected function execute(InputInterface $input, OutputInterface $output):int
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $this->initialize($input, $output);
 
         $version = $input->getOption('target');
         $removeAll = $input->getOption('remove-all');
 
-        if ($version && $removeAll){
+        if ($version && $removeAll) {
             throw new \InvalidArgumentException('Cannot toggle a breakpoint and remove all breakpoints at the same time.');
         }
 
         // Remove all breakpoints
-        if ($removeAll){
+        if ($removeAll) {
             $this->getManager()->removeBreakpoints('default');
         } else {
             // Toggle the breakpoint.
             $this->getManager()->toggleBreakpoint('default', $version);
         }
-        
+
         return self::CODE_SUCCESS;
     }
 }

@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * Released under the MIT License.
  *
@@ -22,6 +24,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
+
 namespace DiabloMedia\PhinxBundle\Command;
 
 use Phinx\Console\Command\AbstractCommand;
@@ -33,10 +36,7 @@ class StatusCommand extends AbstractCommand
 {
     use CommonTrait;
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function configure()
+    protected function configure(): void
     {
         $this->setName('phinx:status')
             ->setAliases(['p:s'])
@@ -48,7 +48,7 @@ class StatusCommand extends AbstractCommand
                 'The output format: text or json. Defaults to text.'
             )
             ->setHelp(
-<<<EOT
+                <<<EOT
 The <info>status</info> command prints a list of all migrations, along with their current status
 
 <info>phinx status</info>
@@ -60,19 +60,16 @@ EOT
     /**
      * Show the migration status.
      *
-     * @param InputInterface $input
-     * @param OutputInterface $output
-     *
-     * @return integer 0 if all migrations are up, or an error code
+     * @return int 0 if all migrations are up, or an error code
      */
-    protected function execute(InputInterface $input, OutputInterface $output):int
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $this->initialize($input, $output);
 
         $format = $input->getOption('format');
 
         if (null !== $format) {
-            $output->writeln('<info>using format</info> ' . $format);
+            $output->writeln('<info>using format</info> '.$format);
         }
 
         // print the status

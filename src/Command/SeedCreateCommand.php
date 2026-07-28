@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * Released under the MIT License.
  *
@@ -25,25 +27,20 @@
 
 namespace DiabloMedia\PhinxBundle\Command;
 
-use InvalidArgumentException;
 use Phinx\Config\NamespaceAwareInterface;
 use Phinx\Console\Command\AbstractCommand;
+use Phinx\Seed\AbstractSeed;
 use Phinx\Util\Util;
-use RuntimeException;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ConfirmationQuestion;
-use Phinx\Seed\AbstractSeed;
 
 class SeedCreateCommand extends AbstractCommand
 {
     use CommonTrait;
 
-    /**
-     * {@inheritdoc}
-     */
     protected function configure(): void
     {
         $this->setName('phinx:seed:create')
@@ -67,8 +64,6 @@ EOT
     /**
      * Get the confirmation question asking if the user wants to create the
      * seeders directory.
-     *
-     * @return ConfirmationQuestion
      */
     protected function getCreateSeederDirectoryQuestion(): ConfirmationQuestion
     {
@@ -78,12 +73,8 @@ EOT
     /**
      * Create the new seeder.
      *
-     * @param InputInterface $input
-     * @param OutputInterface $output
-     *
-     * @return integer
-     * @throws InvalidArgumentException
-     * @throws RuntimeException
+     * @throws \InvalidArgumentException
+     * @throws \RuntimeException
      */
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
@@ -91,77 +82,64 @@ EOT
 
         // get the seed path from the config
         $path = $this->getConfig()->getSeedPaths();
-        $path = \array_pop($path);
+        $path = array_pop($path);
 
-        if (!\file_exists($path)) {
+        if (!file_exists($path)) {
             $helper = $this->getHelper('question');
             $question = $this->getCreateSeederDirectoryQuestion();
 
             if ($helper->ask($input, $output, $question)) {
-                \mkdir($path, 0755, true);
+                mkdir($path, 0755, true);
             }
         }
 
         $this->verifySeedDirectory($path);
 
-        $path = \realpath($path);
+        $path = realpath($path);
         $className = $input->getArgument('seederName');
 
         if (!Util::isValidPhinxClassName($className)) {
-            throw new InvalidArgumentException(
-                \sprintf(
-                    'The seeder class name "%s" is invalid. Please use CamelCase format.',
-                    $className
-                )
-            );
+            throw new \InvalidArgumentException(\sprintf('The seeder class name "%s" is invalid. Please use CamelCase format.', $className));
         }
 
         // Compute the file path
-        $filePath = $path . DIRECTORY_SEPARATOR . $className . '.php';
+        $filePath = $path.\DIRECTORY_SEPARATOR.$className.'.php';
 
-        if (\is_file($filePath)) {
-            throw new InvalidArgumentException(
-                \sprintf(
-                    'The file "%s" already exists',
-                    $filePath
-                )
-            );
+        if (is_file($filePath)) {
+            throw new \InvalidArgumentException(\sprintf('The file "%s" already exists', $filePath));
         }
 
         $template = $this->getSeedTemplateFilename();
         $altTemplate = $input->getOption('template');
-        if (null !== $altTemplate && \file_exists($altTemplate)) {
+        if (null !== $altTemplate && file_exists($altTemplate)) {
             $template = $altTemplate;
         }
 
         // inject the class names appropriate to this seeder
-        $contents = \file_get_contents($template);
+        $contents = file_get_contents($template);
 
         $config = $this->getConfig();
         $namespace = $config instanceof NamespaceAwareInterface ? $config->getSeedNamespaceByPath($path) : null;
         $classes = [
-            '$namespaceDefinition' => null !== $namespace ? ('namespace ' . $namespace . ';') : '',
-            '$namespace'           => $namespace,
-            '$useClassName'        => AbstractSeed::class,
-            '$className'           => $className,
-            '$baseClassName'       => 'AbstractSeed',
+            '$namespaceDefinition' => null !== $namespace ? ('namespace '.$namespace.';') : '',
+            '$namespace' => $namespace,
+            '$useClassName' => AbstractSeed::class,
+            '$className' => $className,
+            '$baseClassName' => 'AbstractSeed',
         ];
-        $contents = \strtr($contents, $classes);
+        $contents = strtr($contents, $classes);
 
-        if (false === \file_put_contents($filePath, $contents)) {
-            throw new RuntimeException(\sprintf(
-                'The file "%s" could not be written to',
-                $path
-            ));
+        if (false === file_put_contents($filePath, $contents)) {
+            throw new \RuntimeException(\sprintf('The file "%s" could not be written to', $path));
         }
 
-        $output->writeln('<info>using seed base class</info> ' . $classes['$useClassName']);
-        if (null !== $altTemplate && \file_exists($altTemplate)) {
-            $output->writeln('<info>using alternative template</info> ' . $altTemplate);
+        $output->writeln('<info>using seed base class</info> '.$classes['$useClassName']);
+        if (null !== $altTemplate && file_exists($altTemplate)) {
+            $output->writeln('<info>using alternative template</info> '.$altTemplate);
         } else {
             $output->writeln('<info>using default template</info>');
         }
-        $output->writeln('<info>created</info> .' . \str_replace(\getcwd(), '', $filePath));
+        $output->writeln('<info>created</info> .'.str_replace(getcwd(), '', $filePath));
 
         return self::CODE_SUCCESS;
     }

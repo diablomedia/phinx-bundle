@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * Released under the MIT License.
  *
@@ -34,9 +36,6 @@ class MigrateCommand extends AbstractCommand
 {
     use CommonTrait;
 
-    /**
-     * {@inheritdoc}
-     */
     protected function configure(): void
     {
         $this
@@ -72,10 +71,8 @@ EOT
     /**
      * Migrate the database.
      *
-     * @param InputInterface  $input
-     * @param OutputInterface $output
+     * @return int integer 0 on success, or an error code
      *
-     * @return integer integer 0 on success, or an error code.
      * @throws \Exception
      */
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -83,7 +80,7 @@ EOT
         $this->initialize($input, $output);
 
         $version = $input->getOption('target');
-        $date    = $input->getOption('date');
+        $date = $input->getOption('date');
 
         $envOptions = $this->getConfig()->getEnvironment('default');
 
@@ -104,7 +101,7 @@ EOT
         $end = microtime(true);
 
         $output->writeln('');
-        $output->writeln('<comment>All Done. Took '.sprintf('%.4fs', $end - $start).'</comment>');
+        $output->writeln('<comment>All Done. Took '.\sprintf('%.4fs', $end - $start).'</comment>');
 
         return self::CODE_SUCCESS;
     }
