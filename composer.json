@@ -14,6 +14,23 @@
         "robmorgan/phinx": "*",
         "symfony/framework-bundle": "^7.0|^8.0"
     },
+    "require-dev": {
+        "friendsofphp/php-cs-fixer": "^3.88",
+        "phpstan/phpstan": "^2.1",
+        "rector/rector": "^2.2"
+    },
+    "scripts": {
+        "analyse": "phpstan analyse",
+        "cs-check": "php-cs-fixer fix --dry-run --diff --sequential",
+        "cs-fix": "php-cs-fixer fix --sequential",
+        "rector": "rector process --dry-run",
+        "rector-fix": "rector process",
+        "quality": [
+            "@analyse",
+            "@cs-check",
+            "@rector"
+        ]
+    },
     "extra": {
         "branch-alias": {
             "dev-main": "1.0.x-dev"
