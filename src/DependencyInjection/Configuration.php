@@ -66,14 +66,13 @@ class Configuration implements ConfigurationInterface
             ->defaultValue('%kernel.project_dir%/src/Resources/db/seeds');
 
         $environment = $children->arrayNode('environment');
-        $environment->isRequired();
+        $environment->addDefaultsIfNotSet();
         $environmentChildren = $environment->children();
         $environmentChildren->scalarNode('table_prefix');
         $environmentChildren->scalarNode('table_suffix');
         $environmentChildren->scalarNode('migration_table');
 
         $connection = $environmentChildren->arrayNode('connection');
-        $connection->isRequired();
         $connection->children()
             ->scalarNode('dsn')
             ->isRequired();

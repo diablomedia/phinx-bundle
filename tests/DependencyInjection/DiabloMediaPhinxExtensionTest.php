@@ -49,7 +49,7 @@ final class DiabloMediaPhinxExtensionTest extends TestCase
         $arguments = $definition->getArguments();
         self::assertCount(1, $arguments);
         self::assertIsArray($arguments[0]);
-        self::assertSame('default', $arguments[0]['environments']['default_database']);
+        self::assertSame('default', $arguments[0]['environments']['default_environment']);
         self::assertSame('migration_log', $arguments[0]['environments']['default_migration_table']);
         self::assertSame('sqlite::memory:', $arguments[0]['environments']['default']['dsn']);
         self::assertSame('prefix_', $arguments[0]['environments']['default']['table_prefix']);
@@ -67,6 +67,22 @@ final class DiabloMediaPhinxExtensionTest extends TestCase
         self::assertTrue($this->container->hasDefinition($serviceId));
         self::assertSame($class, $this->container->getDefinition($serviceId)->getClass());
         self::assertNotSame([], $this->container->getDefinition($serviceId)->getTag('console.command'));
+    }
+
+    public function testLoadWithoutConfigurationSupportsCacheWarmup(): void
+    {
+        $this->loadExtension();
+
+        $definition = $this->container->getDefinition('phinx.config');
+        $arguments = $definition->getArguments();
+        self::assertIsArray($arguments[0]);
+        self::assertSame([], $arguments[0]['environments']['default']);
+
+        $config = new Config($arguments[0]);
+        self::assertSame('default', $config->getDefaultEnvironment());
+
+        $this->container->compile();
+        self::assertTrue($this->container->has('phinx.config'));
     }
 
     /**
@@ -88,8 +104,6 @@ final class DiabloMediaPhinxExtensionTest extends TestCase
      */
     private function loadExtension(array $config = []): void
     {
-        $config['environment']['connection']['dsn'] ??= 'sqlite::memory:';
-
         (new DiabloMediaPhinxExtension())->load([$config], $this->container);
     }
 }

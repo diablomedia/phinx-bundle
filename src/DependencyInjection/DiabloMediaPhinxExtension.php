@@ -54,13 +54,13 @@ class DiabloMediaPhinxExtension extends Extension
             $options['migration_base_class'] = $config['migration_base_class'];
         }
 
-        $options['environments']['default_database'] = 'default';
+        $options['environments']['default_environment'] = 'default';
 
         if (isset($config['environment']['migration_table'])) {
             $options['environments']['default_migration_table'] = $config['environment']['migration_table'];
         }
 
-        $options['environments']['default'] = $config['environment']['connection'];
+        $options['environments']['default'] = $config['environment']['connection'] ?? [];
 
         if (isset($config['environment']['table_prefix'])) {
             $options['environments']['default']['table_prefix'] = $config['environment']['table_prefix'];

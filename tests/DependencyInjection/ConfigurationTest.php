@@ -15,12 +15,12 @@ final class ConfigurationTest extends TestCase
     {
         $config = (new Processor())->processConfiguration(
             new Configuration(),
-            [['environment' => ['connection' => ['dsn' => 'sqlite::memory:']]]],
+            [[]],
         );
 
         self::assertSame('%kernel.project_dir%/src/Resources/db/migrations', $config['paths']['migrations']);
         self::assertSame('%kernel.project_dir%/src/Resources/db/seeds', $config['paths']['seeds']);
-        self::assertSame('sqlite::memory:', $config['environment']['connection']['dsn']);
+        self::assertSame([], $config['environment']);
     }
 
     public function testCustomConfigurationIsPreserved(): void
@@ -53,6 +53,9 @@ final class ConfigurationTest extends TestCase
     {
         $this->expectException(InvalidConfigurationException::class);
 
-        (new Processor())->processConfiguration(new Configuration(), [[]]);
+        (new Processor())->processConfiguration(
+            new Configuration(),
+            [['environment' => ['connection' => []]]],
+        );
     }
 }
