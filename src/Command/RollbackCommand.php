@@ -104,7 +104,7 @@ EOT
         $noInteraction = $input->getOption('no-interaction');
 
         if (!$noInteraction) {
-            $options = $this->getManager()->getEnvironment('default')->getOptions();
+            $options = $this->getManager()->getEnvironment($this->environment)->getOptions();
             $helper = $this->getQuestionHelper();
 
             $message = '<info>Careful, would rollback the database <comment>%s</comment>. '
@@ -121,9 +121,9 @@ EOT
         $start = microtime(true);
         if (null !== $date) {
             $targetDate = new \DateTime($date);
-            $this->getManager()->rollback('default', $targetDate->format('YmdHis'), $force, false, $fake);
+            $this->getManager()->rollback($this->environment, $targetDate->format('YmdHis'), $force, false, $fake);
         } else {
-            $this->getManager()->rollback('default', $version, $force, true, $fake);
+            $this->getManager()->rollback($this->environment, $version, $force, true, $fake);
         }
         $end = microtime(true);
 

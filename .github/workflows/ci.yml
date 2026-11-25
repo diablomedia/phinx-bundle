@@ -11,7 +11,29 @@ on:
 permissions:
     contents: read
 
+concurrency:
+    group: ${{ github.workflow }}-${{ github.ref }}
+    cancel-in-progress: true
+
 jobs:
+    zizmor:
+        name: Zizmor
+        runs-on: ubuntu-latest
+
+        steps:
+            - name: Check out the repository
+              uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
+              with:
+                  persist-credentials: false
+
+            - name: Audit GitHub Actions and Dependabot
+              uses: zizmorcore/zizmor-action@1b4550e929643b8b26a62303c6bd64814271a4f1 # v0.9.2
+              with:
+                  inputs: .github
+                  advanced-security: false
+                  strict-collection: true
+                  persona: pedantic
+
     quality:
         name: PHP ${{ matrix.php }} / ${{ matrix.dependencies }}
         runs-on: ubuntu-latest
@@ -30,10 +52,12 @@ jobs:
 
         steps:
             - name: Check out the repository
-              uses: actions/checkout@v6
+              uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
+              with:
+                  persist-credentials: false
 
             - name: Set up PHP
-              uses: shivammathur/setup-php@v2
+              uses: shivammathur/setup-php@eb7c497e18156a6bbabfef1d3a82760b9eda3962 # 2.40.0
               with:
                   php-version: ${{ matrix.php }}
                   coverage: none

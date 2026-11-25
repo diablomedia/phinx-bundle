@@ -73,7 +73,7 @@ EOT
         }
 
         // print the status
-        $this->getManager()->printStatus('default', $format);
+        $this->getManager()->printStatus($this->environment, $format);
 
         return self::CODE_SUCCESS;
     }

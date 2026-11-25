@@ -62,10 +62,10 @@ class MigrateCommand extends AbstractCommand
                 <<<EOT
 The <info>migrate</info> command runs all available migrations, optionally up to a specific version
 
-<info>phinx migrate -e development</info>
-<info>phinx migrate -e development -t 20110103081132</info>
-<info>phinx migrate -e development -d 20110103</info>
-<info>phinx migrate -e development -v</info>
+<info>bin/console phinx:migrate --env=development</info>
+<info>bin/console phinx:migrate --env=development -t 20110103081132</info>
+<info>bin/console phinx:migrate --env=development -d 20110103</info>
+<info>bin/console phinx:migrate --env=development -v</info>
 
 EOT
             )
@@ -85,7 +85,7 @@ EOT
         $date = $input->getOption('date');
         $fake = (bool) $input->getOption('fake');
 
-        $envOptions = $this->getConfig()->getEnvironment('default');
+        $envOptions = $this->getConfig()->getEnvironment($this->environment);
 
         if (isset($envOptions['table_prefix'])) {
             $output->writeln('<info>using table prefix</info> '.$envOptions['table_prefix'], $this->verbosityLevel);
@@ -97,9 +97,9 @@ EOT
         // run the migrations
         $start = microtime(true);
         if (null !== $date) {
-            $this->getManager()->migrateToDateTime('default', new \DateTime($date), $fake);
+            $this->getManager()->migrateToDateTime($this->environment, new \DateTime($date), $fake);
         } else {
-            $this->getManager()->migrate('default', $version, $fake);
+            $this->getManager()->migrate($this->environment, $version, $fake);
         }
         $end = microtime(true);
 

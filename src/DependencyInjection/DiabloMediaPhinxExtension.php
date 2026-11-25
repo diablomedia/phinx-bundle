@@ -53,7 +53,7 @@ class DiabloMediaPhinxExtension extends Extension
             $options['migration_base_class'] = $config['migration_base_class'];
         }
 
-        $options['environments']['default_environment'] = 'default';
+        $options['environments']['default_environment'] = '%kernel.environment%';
 
         if (isset($config['environment']['migration_table'])) {
             $options['environments']['default_migration_table'] = $config['environment']['migration_table'];
@@ -69,7 +69,7 @@ class DiabloMediaPhinxExtension extends Extension
         }
 
         $env = $container->register('phinx.config', PhinxConfig::class);
-        $env->setArguments([$options]);
+        $env->setArguments([$options, null, '%kernel.environment%']);
         $env->setPublic(true);
 
         $container->setParameter('phinx.prompt_password', $config['environment']['prompt_password']);
