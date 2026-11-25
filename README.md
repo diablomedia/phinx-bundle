@@ -80,8 +80,11 @@ diablo_media_phinx:
             dsn: 'mysql://db_user:db_password@127.0.0.1:3306/db_name?charset=utf8mb4'
 ```
 
-The bundle exposes a single Phinx environment named `default`; Symfony
-configuration determines its connection and paths. See the
+Phinx commands use Symfony's resolved environment to select the connection and
+migration paths configured for that environment. For example,
+`bin/console phinx:migrate --env=testing` makes `getEnvironment()` return
+`testing` inside the migration. Without `--env`, Symfony resolves the environment
+from the application's `APP_ENV` configuration. See the
 [Phinx configuration reference](https://book.cakephp.org/phinx/0/en/configuration.html)
 for more detail about DSNs, migration paths, adapters, and migration behavior.
 

@@ -76,10 +76,10 @@ EOT
         $start = microtime(true);
         if (\count($seeds) > 0) {
             foreach ($seeds as $seed) {
-                $this->getManager()->seed('default', $seed);
+                $this->getManager()->seed($this->environment, $seed);
             }
         } else {
-            $this->getManager()->seed('default');
+            $this->getManager()->seed($this->environment);
         }
         $end = microtime(true);
 

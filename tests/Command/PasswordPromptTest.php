@@ -42,9 +42,10 @@ final class PasswordPromptTest extends TestCase
 
         self::assertSame(Command::SUCCESS, $tester->execute([]));
 
-        $environment = $config->getEnvironment('default');
+        $environment = $config->getEnvironment('testing');
         self::assertIsArray($environment);
         self::assertSame('secret', $environment['pass']);
+        self::assertSame($environment, $config->getEnvironment('default'));
     }
 
     public function testNonInteractiveCommandFailsInsteadOfPrompting(): void
@@ -71,12 +72,12 @@ final class PasswordPromptTest extends TestCase
                 'seeds' => __DIR__,
             ],
             'environments' => [
-                'default_environment' => 'default',
+                'default_environment' => 'testing',
                 'default' => [
                     'dsn' => 'mysql://db_user@127.0.0.1:3306/db_name',
                 ],
             ],
-        ]);
+        ], symfonyEnvironment: 'testing');
 
         $container = new ContainerBuilder();
         $container->set('phinx.config', $config);
@@ -85,6 +86,7 @@ final class PasswordPromptTest extends TestCase
 
         $kernel = $this->createMock(KernelInterface::class);
         $kernel->method('getContainer')->willReturn($container);
+        $kernel->method('getEnvironment')->willReturn('testing');
 
         $application = new Application($kernel);
         $command = new PasswordPromptCommand();

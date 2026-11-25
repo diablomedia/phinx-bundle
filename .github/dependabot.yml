@@ -1,0 +1,27 @@
+version: 2
+
+multi-ecosystem-groups:
+    non-major:
+        schedule:
+            interval: weekly
+
+updates:
+    - package-ecosystem: composer
+      directory: '/'
+      patterns: ['*']
+      multi-ecosystem-group: non-major
+      cooldown:
+          default-days: 7
+      ignore:
+          - dependency-name: '*'
+            update-types: ['version-update:semver-major']
+
+    - package-ecosystem: github-actions
+      directory: '/'
+      patterns: ['*']
+      multi-ecosystem-group: non-major
+      cooldown:
+          default-days: 7
+      ignore:
+          - dependency-name: '*'
+            update-types: ['version-update:semver-major']

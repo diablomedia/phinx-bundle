@@ -25,6 +25,7 @@ final class DiabloMediaPhinxExtensionTest extends TestCase
     {
         $this->container = new ContainerBuilder();
         $this->container->setParameter('kernel.project_dir', '/project');
+        $this->container->setParameter('kernel.environment', 'testing');
     }
 
     public function testLoadRegistersPhinxConfiguration(): void
@@ -48,14 +49,18 @@ final class DiabloMediaPhinxExtensionTest extends TestCase
         self::assertSame(['custom' => 'App\\Database\\CustomAdapter'], $this->container->getParameter('phinx.adapters'));
 
         $arguments = $definition->getArguments();
-        self::assertCount(1, $arguments);
         self::assertIsArray($arguments[0]);
-        self::assertSame('default', $arguments[0]['environments']['default_environment']);
         self::assertSame('migration_log', $arguments[0]['environments']['default_migration_table']);
         self::assertSame('sqlite::memory:', $arguments[0]['environments']['default']['dsn']);
         self::assertSame('prefix_', $arguments[0]['environments']['default']['table_prefix']);
         self::assertSame('_suffix', $arguments[0]['environments']['default']['table_suffix']);
         self::assertTrue($this->container->getParameter('phinx.prompt_password'));
+
+        $this->container->compile();
+        $config = $this->container->get('phinx.config');
+        self::assertInstanceOf(PhinxConfig::class, $config);
+        self::assertSame('testing', $config->getDefaultEnvironment());
+        self::assertSame($config->getEnvironment('default'), $config->getEnvironment('testing'));
     }
 
     /**
@@ -80,11 +85,10 @@ final class DiabloMediaPhinxExtensionTest extends TestCase
         self::assertIsArray($arguments[0]);
         self::assertSame([], $arguments[0]['environments']['default']);
 
-        $config = new PhinxConfig($arguments[0]);
-        self::assertSame('default', $config->getDefaultEnvironment());
-
         $this->container->compile();
-        self::assertTrue($this->container->has('phinx.config'));
+        $config = $this->container->get('phinx.config');
+        self::assertInstanceOf(PhinxConfig::class, $config);
+        self::assertSame('testing', $config->getDefaultEnvironment());
     }
 
     public function testConnectionDsnSupportsProcessedEnvironmentVariables(): void

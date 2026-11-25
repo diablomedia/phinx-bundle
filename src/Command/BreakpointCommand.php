@@ -80,13 +80,13 @@ EOT
         }
 
         if ($removeAll) {
-            $this->getManager()->removeBreakpoints('default');
+            $this->getManager()->removeBreakpoints($this->environment);
         } elseif ($set) {
-            $this->getManager()->setBreakpoint('default', $version);
+            $this->getManager()->setBreakpoint($this->environment, $version);
         } elseif ($unset) {
-            $this->getManager()->unsetBreakpoint('default', $version);
+            $this->getManager()->unsetBreakpoint($this->environment, $version);
         } else {
-            $this->getManager()->toggleBreakpoint('default', $version);
+            $this->getManager()->toggleBreakpoint($this->environment, $version);
         }
 
         return self::CODE_SUCCESS;

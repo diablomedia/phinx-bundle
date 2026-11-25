@@ -45,6 +45,8 @@ use Symfony\Component\Console\Question\Question;
  */
 trait CommonTrait
 {
+    protected string $environment;
+
     protected function configureCommonOptions(): void
     {
         $this->addOption('--no-info', null, InputOption::VALUE_NONE, 'Hides all debug information');
@@ -61,7 +63,9 @@ trait CommonTrait
             throw new \LogicException('Phinx commands must run within a Symfony FrameworkBundle application.');
         }
 
-        $container = $application->getKernel()->getContainer();
+        $kernel = $application->getKernel();
+        $this->environment = $kernel->getEnvironment();
+        $container = $kernel->getContainer();
         $config = $container->get('phinx.config');
         if (!$config instanceof PhinxConfig) {
             throw new \LogicException('The phinx.config service must use the bundle PhinxConfig class.');
@@ -84,7 +88,7 @@ trait CommonTrait
             });
 
             $password = $this->getQuestionHelper()->ask($input, $output, $question);
-            $config->setEnvironmentPassword('default', $password);
+            $config->setEnvironmentPassword($this->environment, $password);
         }
 
         $this->setConfig($config);
@@ -108,7 +112,7 @@ trait CommonTrait
 
     private function getDatabasePasswordPrompt(PhinxConfig $config): string
     {
-        $environment = $config->getEnvironment('default');
+        $environment = $config->getEnvironment($this->environment);
         $user = $environment['user'] ?? null;
         $host = $environment['host'] ?? null;
 
